@@ -1,0 +1,63 @@
+tabela: contratos_concessao
+camada: silver
+comentario: "Contratos de concessão (CIP), limpos — espelho de `ekon`."
+ingestao: cdc
+fonte: bronze.ekon
+watermark: _ingerido_em
+chave_primaria: [mandt, konzver]
+colunas:
+  - nome: mandt
+    tipo: string
+    comentario: "Mandante"
+    pii: nenhum
+    nulo: false
+  - nome: konzver
+    tipo: string
+    comentario: "Contrato de concessão"
+    pii: nenhum
+    nulo: false
+  - nome: sparte
+    tipo: string
+    comentario: "Setor de atividade"
+    pii: nenhum
+    nulo: true
+  - nome: bukrs
+    tipo: string
+    comentario: "Empresa"
+    pii: nenhum
+    nulo: true
+  - nome: kunde
+    tipo: string
+    comentario: "Parceiro de negócio beneficiário da taxa de concessão (ex.: prefeitura)"
+    pii: indireto
+    nulo: true
+  - nome: twaers
+    tipo: string
+    comentario: "Moeda da transação"
+    pii: nenhum
+    nulo: true
+  - nome: vbeginn
+    tipo: date
+    comentario: "Data de início do contrato"
+    pii: nenhum
+    nulo: true
+  - nome: vende
+    tipo: date
+    comentario: "Data de fim do contrato"
+    pii: nenhum
+    nulo: true
+  - nome: vertart
+    tipo: string
+    comentario: "Tipo de contrato de concessão"
+    pii: nenhum
+    nulo: true
+  - nome: erdat
+    tipo: date
+    comentario: "Data de criação do registro"
+    pii: nenhum
+    nulo: true
+  - nome: _ingerido_em
+    tipo: timestamp
+    comentario: "Timestamp de ingestão na bronze (auditoria)"
+    pii: nenhum
+    nulo: false

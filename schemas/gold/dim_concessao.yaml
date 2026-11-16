@@ -1,0 +1,59 @@
+tabela: dim_concessao
+camada: gold
+comentario: "Dimensão de contratos de concessão (CIP) — um registro por contrato, com a prefeitura beneficiária e o tipo de cálculo."
+
+ingestao: scd_type1
+fonte: silver.contratos_concessao
+entidade: dimensao
+chave_negocio: [cod_concessao]
+chave_surrogada: sk_concessao
+
+chave_primaria: [sk_concessao]
+
+colunas:
+  - nome: sk_concessao
+    tipo: bigint
+    comentario: "Chave surrogada da dimensão (gerada)."
+    pii: nenhum
+    nulo: false
+  - nome: cod_concessao
+    tipo: string
+    origem: konzver
+    comentario: "Contrato de concessão."
+    pii: nenhum
+    nulo: false
+  - nome: cod_parceiro_prefeitura
+    tipo: string
+    origem: kunde
+    comentario: "Parceiro de negócio da prefeitura beneficiária da CIP."
+    pii: indireto
+    nulo: true
+  - nome: tipo_calculo
+    tipo: string
+    origem: vertart
+    comentario: "Tipo do contrato: valor fixo ou percentual sobre o consumo faturado."
+    pii: nenhum
+    nulo: true
+  - nome: empresa
+    tipo: string
+    origem: bukrs
+    comentario: "Empresa."
+    pii: nenhum
+    nulo: true
+  - nome: dt_inicio_contrato
+    tipo: date
+    origem: vbeginn
+    comentario: "Data de início do contrato de concessão."
+    pii: nenhum
+    nulo: true
+  - nome: dt_fim_contrato
+    tipo: date
+    origem: vende
+    comentario: "Data de fim do contrato de concessão."
+    pii: nenhum
+    nulo: true
+  - nome: _atualizado_em
+    tipo: timestamp
+    comentario: "Timestamp da última atualização do registro (gerado)."
+    pii: nenhum
+    nulo: false

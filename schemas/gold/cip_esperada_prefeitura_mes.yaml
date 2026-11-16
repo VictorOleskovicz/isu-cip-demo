@@ -1,0 +1,39 @@
+tabela: cip_esperada_prefeitura_mes
+camada: gold
+comentario: "CIP esperada por contrato de concessão e mês, calculada pelo cadastro: instalações com faixa vigente × preço vigente do contrato. Somente contratos de valor fixo."
+
+ingestao: custom
+entidade: obt
+fontes:
+  - silver.instalacoes_historico
+  - silver.contratos_concessao
+  - silver.concessao_precos
+
+chave_primaria: [cod_concessao, mes_referencia]
+
+colunas:
+  - nome: cod_concessao
+    tipo: string
+    comentario: "Contrato de concessão."
+    pii: nenhum
+    nulo: false
+  - nome: mes_referencia
+    tipo: date
+    comentario: "Mês de referência (primeiro dia do mês)."
+    pii: nenhum
+    nulo: false
+  - nome: cod_parceiro_prefeitura
+    tipo: string
+    comentario: "Parceiro de negócio da prefeitura beneficiária da CIP."
+    pii: indireto
+    nulo: true
+  - nome: qtd_instalacoes_ativas
+    tipo: int
+    comentario: "Instalações com faixa vigente no contrato no primeiro dia do mês."
+    pii: nenhum
+    nulo: false
+  - nome: valor_cip_esperado
+    tipo: decimal(23,2)
+    comentario: "CIP esperada no mês: soma do preço vigente por instalação ativa."
+    pii: nenhum
+    nulo: false

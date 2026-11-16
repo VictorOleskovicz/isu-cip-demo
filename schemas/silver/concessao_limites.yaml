@@ -1,0 +1,48 @@
+tabela: concessao_limites
+camada: silver
+comentario: "Limites dos contratos de concessão, limpos — espelho de `ekonh`."
+ingestao: cdc
+fonte: bronze.ekonh
+watermark: _ingerido_em
+chave_primaria: [mandt, konzver, ab]
+colunas:
+  - nome: mandt
+    tipo: string
+    comentario: "Mandante"
+    pii: nenhum
+    nulo: false
+  - nome: konzver
+    tipo: string
+    comentario: "Contrato de concessão"
+    pii: nenhum
+    nulo: false
+  - nome: ab
+    tipo: date
+    comentario: "Data a partir da qual o limite é válido"
+    pii: nenhum
+    nulo: false
+  - nome: mass
+    tipo: string
+    comentario: "Unidade de medida do limite de consumo"
+    pii: nenhum
+    nulo: true
+  - nome: grenzmng
+    tipo: decimal(23,2)
+    comentario: "Limite de consumo"
+    pii: nenhum
+    nulo: true
+  - nome: grenzpr
+    tipo: decimal(23,2)
+    comentario: "Limite de valor"
+    pii: nenhum
+    nulo: true
+  - nome: twaers
+    tipo: string
+    comentario: "Moeda da transação"
+    pii: nenhum
+    nulo: true
+  - nome: _ingerido_em
+    tipo: timestamp
+    comentario: "Timestamp de ingestão na bronze (auditoria)"
+    pii: nenhum
+    nulo: false

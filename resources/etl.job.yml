@@ -1,0 +1,87 @@
+# Job serverless bronze -> silver -> gold (CIP esperada por prefeitura).
+# Uma tarefa por tabela; dependencias garantem a ordem das camadas. Serverless (sem
+# job_clusters) para minimizar startup. Silver reutiliza ingest_cdc.py; gold usa
+# transform_gold.py (dimensao SCD1) e transform_gold_cip_esperada.py (OBT custom).
+resources:
+  jobs:
+    etl_medallion:
+      name: etl_medallion
+      # periodo de referencia da OBT; sobrescreva em run-now (--json job_parameters)
+      parameters:
+        - name: periodo_inicio
+          default: "2025-01-01"
+        - name: periodo_fim
+          default: "2025-12-01"
+      tasks:
+        # ---- SILVER: ingestao CDC (bronze -> silver) --------------------------
+        - task_key: silver_instalacoes
+          notebook_task:
+            notebook_path: ../src/notebooks/ingest_cdc.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_bronze}
+              schema_destino: ${var.schema_silver}
+              caminho_estado: ${workspace.file_path}/schemas/silver/instalacoes.yaml
+
+        - task_key: silver_instalacoes_historico
+          notebook_task:
+            notebook_path: ../src/notebooks/ingest_cdc.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_bronze}
+              schema_destino: ${var.schema_silver}
+              caminho_estado: ${workspace.file_path}/schemas/silver/instalacoes_historico.yaml
+
+        - task_key: silver_contratos_concessao
+          notebook_task:
+            notebook_path: ../src/notebooks/ingest_cdc.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_bronze}
+              schema_destino: ${var.schema_silver}
+              caminho_estado: ${workspace.file_path}/schemas/silver/contratos_concessao.yaml
+
+        - task_key: silver_concessao_precos
+          notebook_task:
+            notebook_path: ../src/notebooks/ingest_cdc.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_bronze}
+              schema_destino: ${var.schema_silver}
+              caminho_estado: ${workspace.file_path}/schemas/silver/concessao_precos.yaml
+
+        - task_key: silver_concessao_limites
+          notebook_task:
+            notebook_path: ../src/notebooks/ingest_cdc.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_bronze}
+              schema_destino: ${var.schema_silver}
+              caminho_estado: ${workspace.file_path}/schemas/silver/concessao_limites.yaml
+
+        # ---- GOLD: transformacao de negocio (silver -> gold) ------------------
+        - task_key: gold_dim_concessao
+          depends_on:
+            - task_key: silver_contratos_concessao
+          notebook_task:
+            notebook_path: ../src/notebooks/transform_gold.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_silver}
+              schema_destino: ${var.schema_gold}
+              caminho_estado: ${workspace.file_path}/schemas/gold/dim_concessao.yaml
+
+        - task_key: gold_cip_esperada_prefeitura_mes
+          depends_on:
+            - task_key: silver_instalacoes_historico
+            - task_key: silver_contratos_concessao
+            - task_key: silver_concessao_precos
+          notebook_task:
+            notebook_path: ../src/notebooks/transform_gold_cip_esperada.py
+            base_parameters:
+              catalogo: ${var.catalog}
+              schema_origem: ${var.schema_silver}
+              schema_destino: ${var.schema_gold}
+              caminho_estado: ${workspace.file_path}/schemas/gold/cip_esperada_prefeitura_mes.yaml
+              periodo_inicio: "{{job.parameters.periodo_inicio}}"
+              periodo_fim: "{{job.parameters.periodo_fim}}"

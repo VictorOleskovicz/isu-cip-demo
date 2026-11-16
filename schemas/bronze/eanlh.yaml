@@ -1,0 +1,82 @@
+tabela: eanlh
+camada: bronze
+comentario: "Instalação IS-U (dados dependentes de tempo): faixas de validade com categoria de tarifa, classe de cálculo, unidade de leitura e contrato de concessão."
+ingestao: cdc
+fonte: sap.eanlh
+chave_primaria: [mandt, anlage, bis]
+colunas:
+  - nome: mandt
+    tipo: string
+    comentario: "Mandante"
+    pii: nenhum
+    nulo: false
+  - nome: anlage
+    tipo: string
+    comentario: "Instalação"
+    pii: indireto
+    nulo: false
+  - nome: bis
+    tipo: date
+    comentario: "Data até a qual a faixa de tempo é válida"
+    pii: nenhum
+    nulo: false
+  - nome: ab
+    tipo: date
+    comentario: "Data a partir da qual a faixa de tempo é válida"
+    pii: nenhum
+    nulo: true
+  - nome: tariftyp
+    tipo: string
+    comentario: "Categoria de tarifa"
+    pii: nenhum
+    nulo: true
+  - nome: branche
+    tipo: string
+    comentario: "Setor industrial (ramo de atividade)"
+    pii: nenhum
+    nulo: true
+  - nome: aklasse
+    tipo: string
+    comentario: "Classe de cálculo"
+    pii: nenhum
+    nulo: true
+  - nome: ableinh
+    tipo: string
+    comentario: "Unidade de leitura"
+    pii: nenhum
+    nulo: true
+  - nome: temp_area
+    tipo: string
+    comentario: "Área de temperatura"
+    pii: nenhum
+    nulo: true
+  - nome: konzver
+    tipo: string
+    comentario: "Contrato de concessão atribuído à instalação na faixa de tempo"
+    pii: nenhum
+    nulo: true
+  - nome: maininst
+    tipo: string
+    comentario: "Instalação principal"
+    pii: indireto
+    nulo: true
+  - nome: instrole
+    tipo: string
+    comentario: "Função da instalação no grupo de instalações"
+    pii: nenhum
+    nulo: true
+  - nome: instgrtype
+    tipo: string
+    comentario: "Tipo de agrupamento do grupo de instalações"
+    pii: nenhum
+    nulo: true
+  - nome: istype
+    tipo: string
+    comentario: "Sistema setorial"
+    pii: nenhum
+    nulo: true
+  - nome: _ingerido_em
+    tipo: timestamp
+    comentario: "Timestamp de ingestão na bronze (auditoria)"
+    pii: nenhum
+    nulo: false

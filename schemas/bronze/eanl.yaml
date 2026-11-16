@@ -1,0 +1,92 @@
+tabela: eanl
+camada: bronze
+comentario: "Instalação IS-U (dados mestre independentes de tempo): setor, local de consumo e tipo da instalação."
+ingestao: cdc
+fonte: sap.eanl
+chave_primaria: [mandt, anlage]
+colunas:
+  - nome: mandt
+    tipo: string
+    comentario: "Mandante"
+    pii: nenhum
+    nulo: false
+  - nome: anlage
+    tipo: string
+    comentario: "Instalação"
+    pii: indireto
+    nulo: false
+  - nome: sparte
+    tipo: string
+    comentario: "Setor de atividade (ex.: eletricidade, gás, água)"
+    pii: nenhum
+    nulo: true
+  - nome: vstelle
+    tipo: string
+    comentario: "Local de consumo"
+    pii: indireto
+    nulo: true
+  - nome: bezug
+    tipo: string
+    comentario: "Referência da instalação"
+    pii: nenhum
+    nulo: true
+  - nome: anlart
+    tipo: string
+    comentario: "Tipo de instalação"
+    pii: nenhum
+    nulo: true
+  - nome: spebene
+    tipo: string
+    comentario: "Nível de tensão"
+    pii: nenhum
+    nulo: true
+  - nome: ablesartst
+    tipo: string
+    comentario: "Controle do número de autoleituras e estimativas automáticas permitidas"
+    pii: nenhum
+    nulo: true
+  - nome: nodisconct
+    tipo: string
+    comentario: "Motivo de garantia de fornecimento (ex.: equipamento vital, atividade essencial)"
+    pii: sensivel
+    nulo: true
+  - nome: deregstat
+    tipo: string
+    comentario: "Status de desregulamentação"
+    pii: nenhum
+    nulo: true
+  - nome: erdat
+    tipo: date
+    comentario: "Data de criação do registro"
+    pii: nenhum
+    nulo: true
+  - nome: ernam
+    tipo: string
+    comentario: "Nome do usuário que criou o registro"
+    pii: indireto
+    nulo: true
+  - nome: aedat
+    tipo: date
+    comentario: "Data da última modificação"
+    pii: nenhum
+    nulo: true
+  - nome: aenam
+    tipo: string
+    comentario: "Nome do usuário que modificou o registro"
+    pii: indireto
+    nulo: true
+  - nome: begru
+    tipo: string
+    comentario: "Grupo de autorizações"
+    pii: nenhum
+    nulo: true
+  - nome: loevm
+    tipo: string
+    comentario: "Código de eliminação"
+    pii: nenhum
+    nulo: true
+  - nome: _ingerido_em
+    tipo: timestamp
+    comentario: "Timestamp de ingestão na bronze (auditoria)"
+    pii: nenhum
+    nulo: false

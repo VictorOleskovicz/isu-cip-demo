@@ -1,0 +1,57 @@
+tabela: ekong
+camada: bronze
+comentario: "Contrato de concessão IS-U (preços): valores ou percentuais da taxa de concessão por classe, escalão de consumo e data de início de validade."
+ingestao: cdc
+fonte: sap.ekong
+chave_primaria: [mandt, konzver, konzigr, ab, kabis]
+colunas:
+  - nome: mandt
+    tipo: string
+    comentario: "Mandante"
+    pii: nenhum
+    nulo: false
+  - nome: konzver
+    tipo: string
+    comentario: "Contrato de concessão"
+    pii: nenhum
+    nulo: false
+  - nome: konzigr
+    tipo: string
+    comentario: "Classe de cálculo"
+    pii: nenhum
+    nulo: false
+  - nome: ab
+    tipo: date
+    comentario: "Data a partir da qual o preço é válido"
+    pii: nenhum
+    nulo: false
+  - nome: kabis
+    tipo: decimal(23,2)
+    comentario: "Até escalão (limite superior da faixa de consumo)"
+    pii: nenhum
+    nulo: false
+  - nome: kavon
+    tipo: decimal(23,2)
+    comentario: "Escalão de (limite inferior da faixa de consumo)"
+    pii: nenhum
+    nulo: true
+  - nome: konkun
+    tipo: decimal(38,9)
+    comentario: "Quota da taxa de concessão do parceiro de negócios (valor ou percentual)"
+    pii: nenhum
+    nulo: true
+  - nome: konevu
+    tipo: decimal(38,9)
+    comentario: "Quota da taxa de concessão da empresa de serviços públicos (valor ou percentual)"
+    pii: nenhum
+    nulo: true
+  - nome: twaers
+    tipo: string
+    comentario: "Moeda da transação"
+    pii: nenhum
+    nulo: true
+  - nome: _ingerido_em
+    tipo: timestamp
+    comentario: "Timestamp de ingestão na bronze (auditoria)"
+    pii: nenhum
+    nulo: false
