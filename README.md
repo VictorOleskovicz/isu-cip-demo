@@ -48,7 +48,7 @@ Arquivos alterados no fork do plugin ([`feat/isu-kb`](https://github.com/VictorO
 - `knowledge/sap/bronze/{eanl,eanlh,ekon,ekong,ekonh}.yaml` (novos)
 - `knowledge/sap/INDEX.md` (regenerado com `python3 scripts/kb.py index`)
 
-### Pontos a validar na SE11 antes de publicar
+### Pontos a validar na SE11
 
 - `ekong`: o campo de classe foi confirmado como `KONZIGR` (revisão `SPEC-1-1`). Falta conferir
   se a chave está correta e se existe data fim.
@@ -73,8 +73,9 @@ só com o cadastro. A gold `cip_esperada_prefeitura_mes` faz esse cálculo:
 4. Soma por contrato e mês. A visão por prefeitura soma pelo parceiro (`kunde`), porque uma
    prefeitura tem vários contratos (um por classe).
 
-Fora do escopo desta demo: contratos percentuais, preço por faixa de consumo, limites, rateio
-quando a instalação troca de contrato no meio do mês e comparação com o valor faturado.
+Fora do escopo desta demo: contratos percentuais, preço por classe (`konzigr`) ou por faixa de
+consumo (um preço por contrato e data), limites, rateio quando a instalação troca de contrato no
+meio do mês e comparação com o valor faturado.
 
 ## 4. Dados fictícios
 
@@ -104,10 +105,10 @@ tipadas, com a coluna `_ingerido_em`. Ele faz o papel da replicação do SAP.
 |-------|------|
 | Fork do plugin com as tabelas IS-U | [VictorOleskovicz/databricks-data-eng-agent](https://github.com/VictorOleskovicz/databricks-data-eng-agent/tree/feat/isu-kb) (branch `feat/isu-kb`) |
 | Este projeto de demo | este repositório |
-| Especificação | `.data-eng/specs/SPEC-1.md` |
+| Especificação | `.data-eng/specs/SPEC-1.md` e a revisão `SPEC-1-1.md` (`aklasse` → `konzigr`) |
 | Plano e registro da execução | `.data-eng/plans/`, `.data-eng/outputs/` |
 | Fichas das tabelas (estado local) | `schemas/{bronze,silver,gold}/` |
-| Notebooks do plugin | `src/notebooks/` |
+| Notebooks | `src/notebooks/`: os três do plugin, sem alteração, e `transform_gold_cip_esperada.py` (cálculo da CIP) |
 | Configuração (catálogo, schemas, warehouse) | `databricks.yml` |
 | Dados fictícios e gabarito | `dados_ficticios/` |
 | Bronze no Databricks | `workspace.isu_bronze` |
@@ -140,12 +141,20 @@ tipadas, com a coluna `_ingerido_em`. Ele faz o papel da replicação do SAP.
 ## 7. Como reproduzir
 
 ```bash
-# 1. dados fictícios e bronze
+# 1. plugin com as tabelas IS-U (fork, branch feat/isu-kb)
+git clone -b feat/isu-kb https://github.com/VictorOleskovicz/databricks-data-eng-agent.git
+#    no Claude Code, dentro desta pasta:
+#    /plugin marketplace add <caminho do clone>
+#    /plugin install data-eng-agent@databricks-data-eng-agent
+
+# 2. preencher em databricks.yml o host do workspace e o warehouse_id
+
+# 3. dados fictícios e bronze
 cd dados_ficticios
 python3 gerar.py
 ./carregar_bronze.sh <warehouse_id>
 
-# 2. no Claude Code, dentro desta pasta
+# 4. no Claude Code
 /data-eng-agent:specify <pedido>
 /data-eng-agent:plan
 /data-eng-agent:run
@@ -155,21 +164,30 @@ python3 gerar.py
 
 Pontos notados durante o uso, que não foram alterados:
 
-1. **Cruzamento de faixas de validade.** O plugin só tem dimensão SCD Tipo 1 (valor atual).
+1. **Contratos de coluna fora do job.** Os notebooks criam as tabelas com o comentário da tabela,
+   mas não aplicam comentários de coluna, chave primária, NOT NULL nem as tags de PII que estão no
+   YAML. Na execução, isso foi contornado com SQL avulso em todas as camadas; uma tabela recriada
+   pelo job perde essa documentação e o `validate_state.py` passa a acusar diferença. Sugestão:
+   uma etapa no job que aplique esses contratos a partir dos YAMLs.
+2. **Cruzamento de faixas de validade.** O plugin só tem dimensão SCD Tipo 1 (valor atual).
    Tabelas com vigência, como a `eanlh` e a `ekong`, caem na "exceção", com código escrito pela
    IA. O padrão se repete em outras tabelas SAP (`DATAB`/`DATBI`, `BEGDA`/`ENDDA`) e poderia
    virar um notebook determinístico.
-2. **YAML de bronze é quase duplicata da tabela.** Poderia ser gerado da própria tabela no
+3. **YAML de bronze é quase duplicata da tabela.** Poderia ser gerado da própria tabela no
    Unity Catalog ou do dicionário do SAP (`DD03L`/`DD04T`, que já estão na base).
-3. **A silver não converte tipos.** O `ingest_cdc.py` projeta e limpa espaços, mas não aplica o
+4. **A silver não converte tipos.** O `ingest_cdc.py` projeta e limpa espaços, mas não aplica o
    `tipo` do YAML; a bronze precisa chegar tipada.
-4. **Furos na base**: os itens do diagnóstico no passo 3.
-5. **Permissões do `init`**: libera qualquer comando `databricks`, inclusive os destrutivos.
-6. **Nomes de tabela**: o plugin espera a bronze com o nome SAP original; ambientes existentes
+5. **Furos na base**: os itens do diagnóstico no passo 3.
+6. **Permissões do `init`**: libera qualquer comando `databricks`, inclusive os destrutivos.
+7. **Nomes de tabela**: o plugin espera a bronze com o nome SAP original; ambientes existentes
    com outros nomes precisariam de um mapeamento.
-7. **Sem quarentena.** O `ingest_cdc.py` descarta duplicados sem registro e deixa passar chaves
-   nulas, datas inválidas e referências quebradas. Sugestão: regras de qualidade declaradas no
-   YAML da silver, com os registros rejeitados gravados em uma tabela de quarentena com o motivo.
+8. **Sem quarentena.** O `ingest_cdc.py` descarta duplicados sem registro. Como o SAP já entrega
+   dados consistentes, as falhas que importam vêm da replicação: registros duplicados, tabelas
+   que chegam em momentos diferentes (referência ainda ausente), conversões que falham e cargas
+   parciais. Sugestão: regras declaradas no YAML da silver, com os rejeitados gravados em uma
+   tabela de quarentena com o motivo.
+9. **Schemas fora do bundle.** `isu_silver` e `isu_gold` foram criados à mão; com
+   `mode: development`, declará-los no bundle prefixaria os nomes.
 
 ## 9. Estado atual
 
@@ -177,7 +195,3 @@ Atualizado em 16/11/2026: fluxo completo executado e conferido com o gabarito. F
 de alguns campos na SE11 (lista na seção 2).
 
 Para reproduzir, preencha em `databricks.yml` o host do workspace e o `warehouse_id`.
-
-Lacunas observadas na execução (os subagentes contornaram com SQL avulso, fora do job):
-- os notebooks não aplicam comentários de coluna, chave primária, NOT NULL nem as tags de PII;
-- os schemas `isu_silver` e `isu_gold` foram criados à mão, fora do bundle.
