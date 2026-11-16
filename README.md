@@ -48,15 +48,12 @@ Arquivos alterados no fork do plugin ([`feat/isu-kb`](https://github.com/VictorO
 - `knowledge/sap/bronze/{eanl,eanlh,ekon,ekong,ekonh}.yaml` (novos)
 - `knowledge/sap/INDEX.md` (regenerado com `python3 scripts/kb.py index`)
 
-### Pontos a validar na SE11
+### Validação dos campos
 
-- `ekong`: o campo de classe foi confirmado como `KONZIGR` (revisão `SPEC-1-1`). Falta conferir
-  se a chave está correta e se existe data fim.
-- `ekonh`: a chave é só contrato + data, ou inclui a classe?
-- `ekon`: a moeda (`TWAERS`) fica no cabeçalho?
-- `eanl` × `eanlh`: conferir em qual das duas ficam `anlart`, `spebene`, `nodisconct`,
-  `deregstat`, `ablesartst`, `konzver`, `temp_area` e `istype`.
-- Os YAMLs trazem só os campos principais, não a tabela inteira.
+Os campos, as chaves e a distribuição entre `eanl` e `eanlh` foram validados com base nos
+mapeamentos de migração IS-U (objetos de instalação e de contrato de concessão). Na `ekong`, a
+classe de cálculo é `KONZIGR` (revisão `SPEC-1-1`). Os YAMLs trazem os campos principais, não a
+tabela inteira.
 
 ## 3. O caso de uso da demo
 
@@ -191,7 +188,7 @@ Pontos notados durante o uso, que não foram alterados:
 
 ## 9. Estado atual
 
-Atualizado em 16/11/2026: fluxo completo executado e conferido com o gabarito. Falta a revisão
-de alguns campos na SE11 (lista na seção 2).
+Atualizado em 16/11/2026: fluxo completo executado, conferido com o gabarito e com os campos
+validados.
 
 Para reproduzir, preencha em `databricks.yml` o host do workspace e o `warehouse_id`.
